@@ -10,6 +10,7 @@ export default function ChatMessage({
   user_message_style,
   bot_message_style,
   error_message_style,
+  link_target = "_blank",
 }: ChatMessageType) {
 
   return (
@@ -29,6 +30,7 @@ export default function ChatMessage({
       ) : (
         <div style={bot_message_style} className={"cl-bot_message"}>
           <Markdown 
+          linkTarget={link_target}
           className={"markdown-body prose flex flex-col word-break-break-word"}
           remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeMathjax]}

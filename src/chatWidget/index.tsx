@@ -1,7 +1,8 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import ChatTrigger from "./chatTrigger";
 import ChatWindow from "./chatWindow";
 import { ChatMessageType } from "../types/chatWidget";
+import { getStoredMessages, saveStoredMessages } from "../controllers";
 const { v4: uuidv4 } = require('uuid');
 
 export default function ChatWidget({
@@ -33,6 +34,9 @@ export default function ChatWidget({
   additional_headers,
   session_id,
   start_open=false,
+  message_link_target = '_blank',
+  chat_window_z_index = 9999,
+  store_messages_to_session = true,
 }: {
   api_key?: string;
   input_value: string,
@@ -63,10 +67,24 @@ export default function ChatWidget({
   additional_headers?: { [key: string]: string };
   session_id?: string;
   start_open?: boolean;
+  message_link_target?: string;
+  chat_window_z_index?: number;
+  store_messages_to_session?: boolean;
 }) {
   const [open, setOpen] = useState(start_open);
-  const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const sessionId = useRef(session_id ?? uuidv4());
+
+  const [messages, setMessages] = useState<ChatMessageType[]>(() => {
+    return store_messages_to_session ? getStoredMessages(sessionId.current) : [];
+  });
+
+  // Save messages to sessionStorage whenever they change
+  useEffect(() => {
+    if (store_messages_to_session) {
+      saveStoredMessages(sessionId.current, messages);
+    }
+  }, [messages, sessionId, store_messages_to_session]);
+
   function updateLastMessage(message: ChatMessageType) {
     setMessages((prev) => {
       prev[prev.length - 1] = message;
@@ -2179,7 +2197,9 @@ input::-ms-input-placeholder { /* Microsoft Edge */
         position={chat_position}
         sessionId={sessionId}
         additional_headers={additional_headers}
-      />
+        message_link_target={message_link_target}
+        chat_window_z_index={chat_window_z_index}
+        />
     </div>
   );
 }

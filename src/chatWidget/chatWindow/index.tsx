@@ -37,7 +37,9 @@ export default function ChatWindow({
   height = 650,
   tweaks,
   sessionId,
-  additional_headers
+  additional_headers,
+  message_link_target,
+  chat_window_z_index = 9999,
 }: {
   api_key?: string;
   output_type: string,
@@ -70,7 +72,8 @@ export default function ChatWindow({
   height?: number;
   sessionId: React.MutableRefObject<string>;
   additional_headers?: { [key: string]: string };
-
+  message_link_target?: string;
+  chat_window_z_index?: number;
 }) {
   const [value, setValue] = useState<string>("");
   const ref = useRef<HTMLDivElement>(null);
@@ -194,7 +197,7 @@ export default function ChatWindow({
         getAnimationOrigin(position) +
         (open ? " cl-scale-100" : " cl-scale-0")
       }
-      style={{ ...windowPosition, zIndex: 9999 }}
+      style={{ ...windowPosition, zIndex: chat_window_z_index || 9999 }}
     >
       <div
         style={{ ...chat_window_style, width: width, height: height }}
@@ -227,6 +230,7 @@ export default function ChatWindow({
               message={message.message}
               isSend={message.isSend}
               error={message.error}
+              link_target={message_link_target || "_blank"}
             />
           ))}
           {sendingMessage && (
